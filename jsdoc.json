@@ -1,0 +1,17 @@
+{
+    "plugins": [
+        "plugins/markdown"
+    ],
+    "source": {
+        "include": [ "index.js", "package.json" ]
+    },
+    "opts": {
+        "template": "node_modules/tui-jsdoc-template",
+        "readme": "README.md",
+        "destination": "./docs/"
+    },
+    "templates": {
+        "name": "Mapbox GL Mouse over event fix plugin",
+        "useCollapsibles": true
+    }
+}
