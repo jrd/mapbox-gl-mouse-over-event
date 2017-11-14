@@ -29,6 +29,8 @@
      */
     const GLMap = mapboxgl.Map;
 
+    let getFeatureId = feature => feature.id || (feature.properties && feature.properties.id);
+
     /**
      * Create a mouse over effect on a layer by using callbacks.
      *
@@ -49,9 +51,11 @@
                 addFeatureOnEvent(e);
                 let featureOnMap = this.queryRenderedFeatures(e.point)[0];
                 let featureOnLayer = e.feature;
-                if (featureOnMap.id == featureOnLayer.id) {
-                    if (featureOnLayer.id != lastFeatureId) {
-                        lastFeatureId = featureOnLayer.id;
+                let featureOnMapId = getFeatureId(featureOnMap);
+                let featureOnLayerId = getFeatureId(featureOnLayer);
+                if (featureOnMapId == featureOnLayerId) {
+                    if (featureOnLayerId != lastFeatureId) {
+                        lastFeatureId = featureOnLayerId;
                         enterCallback(e);
                     } else {
                         moveOnCallback(e);
@@ -61,12 +65,10 @@
             }
         });
         this.on("mouseleave", layerName, e => {
-            if (!e.originalEvent.cancelBubble) {
-                let featuresOnLayer = this.queryRenderedFeatures(e.point, { layers: [layerName] });
-                if (featuresOnLayer.length == 0) {
-                    lastFeatureId = null;
-                    exitCallback(e);
-                }
+            let featuresOnLayer = this.queryRenderedFeatures(e.point, { layers: [layerName] });
+            if (featuresOnLayer.length == 0) {
+                lastFeatureId = null;
+                exitCallback(e);
             }
         });
     };
@@ -89,7 +91,7 @@
                 addFeatureOnEvent(e);
                 let featureOnMap = this.queryRenderedFeatures(e.point)[0];
                 let featureOnLayer = e.feature;
-                if (featureOnMap.id == featureOnLayer.id) {
+                if (getFeatureId(featureOnMap) == getFeatureId(featureOnLayer)) {
                     callback(e);
                     e.originalEvent.stopPropagation();
                 }
