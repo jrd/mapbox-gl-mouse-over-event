@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Mapbox GL Mouse over event fix plugin</a></h1>
         
-            <span class="version">v1.0.0</span>
+            <span class="version">v1.1.0</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -34,7 +34,7 @@
         <ul></ul>
     </div>
     
-    <div class="lnb-api hidden"><h3>Modules</h3><ul><li><a href="module-mapboxgl.html">mapboxgl</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl_sub"></div></li><li><a href="module-mapboxgl-Map.html">mapboxgl-Map</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl-Map_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-mapboxgl-Map.html#onClick">onClick</a></li><li><a href="module-mapboxgl-Map.html#onMouseOver">onMouseOver</a></li></ul></div></li></ul></div>
+    <div class="lnb-api hidden"><h3>Modules</h3><ul><li><a href="module-mapboxgl.html">mapboxgl</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl_sub"></div></li><li><a href="module-mapboxgl-Map.html">mapboxgl-Map</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl-Map_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-mapboxgl-Map.html#addListenerForLayer">addListenerForLayer</a></li><li><a href="module-mapboxgl-Map.html#fire">fire</a></li><li><a href="module-mapboxgl-Map.html#getListenersForLayer">getListenersForLayer</a></li><li><a href="module-mapboxgl-Map.html#off">off</a></li><li><a href="module-mapboxgl-Map.html#on">on</a></li><li><a href="module-mapboxgl-Map.html#removeListenerFromLayer">removeListenerFromLayer</a></li></ul></div></li></ul></div>
 </nav>
 <div id="resizer"></div>
 
@@ -86,14 +86,14 @@
 
 <dt>
     
-        <h4 class="name" id="onClick">
+        <h4 class="name" id="addListenerForLayer">
             
-                <span class="type-signature"></span>onClick<span class="signature">(layerName, callback)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>addListenerForLayer<span class="signature">(layerId, eventType, listener)</span><span class="type-signature"> &rarr; {function}</span>
                 
             
             <div class="container-source members">
                 <code><a href="index.js.html">index.js</a></code>,
-                <code><a href="index.js.html#line86">line 86</a></code>
+                <code><a href="index.js.html#line46">line 46</a></code>
             </div>
             
         </h4>
@@ -105,10 +105,10 @@
 
     
     <div class="description">
-        <p>Create a click event on a layer.</p>
-<p><code>callback</code> functions is the same as for <code>on</code> map method.</p>
-<p><em>Callback</em> is <strong>optional</strong> and have a new attribute <strong><code>feature</code></strong> which is just a shorthand for <code>features[0]</code>.</p>
-<p>The click event can only occurs on the layer with a feature with the greatest z-index.</p>
+        <p>Add a listener to the map concerning the layer <code>layerId</code>.
+The listener should test whether the specific event is for the layer or not.</p>
+<p>Events will be fired from top to bottom (following pseudo-z-index)
+and only if the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/cancelBubble"><code>originalEvent.cancelBubble</code> is falsy</a>.</p>
     </div>
     
 
@@ -144,7 +144,7 @@
 
         <tr>
             
-                <td class="name"><code>layerName</code></td>
+                <td class="name"><code>layerId</code></td>
             
 
             <td class="type">
@@ -160,20 +160,20 @@
 
             
 
-            <td class="description last"><p>name of the layer</p></td>
+            <td class="description last"><p>the layer id.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>callback</code></td>
+                <td class="name"><code>eventType</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">callback</span>
+<span class="param-type">string</span>
 
 
             
@@ -183,7 +183,30 @@
 
             
 
-            <td class="description last"><p>callback method when a click happened on a feature on the layer</p></td>
+            <td class="description last"><p>the event type.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>listener</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the listener which will be called with a mapbox event.</p></td>
         </tr>
 
     
@@ -203,6 +226,27 @@
 
     
 
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">function</span>
+
+
+
+
+
+- <p>a wrapped listener, original listener could be found in the <code>originalListener</code> property.</p>
+
+
+
+
+            
+    </div>
     
 
     
@@ -251,14 +295,14 @@
 
 <dt>
     
-        <h4 class="name" id="onMouseOver">
+        <h4 class="name" id="fire">
             
-                <span class="type-signature"></span>onMouseOver<span class="signature">(layerName, enterCallback, exitCallback, moveOnCallback)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>fire<span class="signature">(type, event)</span><span class="type-signature"> &rarr; {Map}</span>
                 
             
             <div class="container-source members">
                 <code><a href="index.js.html">index.js</a></code>,
-                <code><a href="index.js.html#line45">line 45</a></code>
+                <code><a href="index.js.html#line235">line 235</a></code>
             </div>
             
         </h4>
@@ -270,10 +314,8 @@
 
     
     <div class="description">
-        <p>Create a mouse over effect on a layer by using callbacks.</p>
-<p><code>callback</code> functions is the same as for <code>on</code> map method.
-Each <em>callback</em> is <strong>optional</strong>.</p>
-<p>Each <em>callback</em> <code>event</code> have a new attribute <strong><code>feature</code></strong> which is just a shorthand for <code>features[0]</code>.</p>
+        <p>Fires an event of the specified type.</p>
+<p>Respect the <em>bubble effect</em>.</p>
     </div>
     
 
@@ -309,7 +351,7 @@ Each <em>callback</em> is <strong>optional</strong>.</p>
 
         <tr>
             
-                <td class="name"><code>layerName</code></td>
+                <td class="name"><code>type</code></td>
             
 
             <td class="type">
@@ -325,20 +367,20 @@ Each <em>callback</em> is <strong>optional</strong>.</p>
 
             
 
-            <td class="description last"><p>name of the layer</p></td>
+            <td class="description last"><p>one of the available types.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>enterCallback</code></td>
+                <td class="name"><code>event</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">callback</span>
+<span class="param-type">object</span>
 
 
             
@@ -348,20 +390,166 @@ Each <em>callback</em> is <strong>optional</strong>.</p>
 
             
 
-            <td class="description last"><p>callback method when entering a feature on the layer</p></td>
+            <td class="description last"><p>event data</p></td>
         </tr>
 
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">Map</span>
+
+
+
+
+
+- <p>this</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="#on"><code>on</code> method</a>.</p></li>
+        
+            <li><p><a href="https://www.mapbox.com/mapbox-gl-js/api/#evented"><code>Evented</code> on <em>mapboxgl</em></a>.</p></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="getListenersForLayer">
+            
+                <span class="type-signature"></span>getListenersForLayer<span class="signature">(layerId)</span><span class="type-signature"> &rarr; {object}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="index.js.html">index.js</a></code>,
+                <code><a href="index.js.html#line65">line 65</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Get all (wrapped) listeners for the specified layer id.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>exitCallback</code></td>
+                <td class="name"><code>layerId</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">callback</span>
+<span class="param-type">string</span>
 
 
             
@@ -371,20 +559,705 @@ Each <em>callback</em> is <strong>optional</strong>.</p>
 
             
 
-            <td class="description last"><p>callback method when leaving feature on the layer</p></td>
+            <td class="description last"><p>the layer id</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">object</span>
+
+
+
+
+
+- <p>object with all listeners as property.</p>
+<p><code>Evented._listeners</code> or empty object.</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><p><a href="https://www.mapbox.com/mapbox-gl-js/api/#evented"><code>Evented</code> on <em>mapboxgl</em></a>.</p></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="off">
+            
+                <span class="type-signature"></span>off<span class="signature">(type, layerIdOrListener<span class="signature-attributes">opt</span>, layerListener<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Map}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="index.js.html">index.js</a></code>,
+                <code><a href="index.js.html#line208">line 208</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Removes an event listener (eventually for layer-specific events) previously added with <a href="#on">on method</a>.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>one of the available types.</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>moveOnCallback</code></td>
+                <td class="name"><code>layerIdOrListener</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">callback</span>
+<span class="param-type">string</span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last"><p>A style layer id from which you want to remove the listener.</p>
+<p>Otherwise, the listener to remove.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layerListener</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last"><p>The listener to remove if not defined in the previous parameter.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">Map</span>
+
+
+
+
+
+- <p>this</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="on">
+            
+                <span class="type-signature"></span>on<span class="signature">(type, layerIdOrListener<span class="signature-attributes">opt</span>, layerListener<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Map}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="index.js.html">index.js</a></code>,
+                <code><a href="index.js.html#line134">line 134</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Enhance <code>on</code> method for registering an event.</p>
+<p>The following special map event <code>type</code> could be registerd:</p>
+<ul>
+<li><em>mousedown</em></li>
+<li><em>mouseup</em></li>
+<li><em>click</em></li>
+<li><em>dblclick</em></li>
+<li><em>mousemove</em></li>
+<li><em>mouseenter</em> / <em>mouseover</em>: the cursor enters a visible portion of the specified layer from outside that layer or outside the map canvas.</li>
+<li><em>mouseleave</em>: the cursor leaves a visible portion of the specified layer or leaves the map canvas.</li>
+<li><em>mouseout</em>: the cursor leaves the map canvas.</li>
+<li><em>contextmenu</em></li>
+<li><em>touchstart</em></li>
+<li><em>touchend</em></li>
+<li><em>touchcancel</em></li>
+</ul>
+<p>Events will be fired from <strong>top</strong> to <strong>bottom</strong> (following the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles"><em>bubble effect</em></a>)
+and only if the <code>originalEvent</code> can propagate (<code>bubbles</code> getter is falsy or <code>stopPropagation</code> has not been called on it).</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>one of the available types.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layerIdOrListener</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last"><p>A style layer id if you want to restrict events to the visible features of a layer.</p>
+<p>Otherwise, a listener which takes a mapboxgl event as argument.</p>
+<p>The event object has three more properties:</p>
+<ul>
+<li><code>originalEvent</code>: the DOM event</li>
+<li><code>target</code>: the DOM target</li>
+<li><code>type</code>: the event type</li>
+</ul></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layerListener</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last"><p>The listener if not defined in the previous parameter.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">Map</span>
+
+
+
+
+
+- <p>this</p>
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="removeListenerFromLayer">
+            
+                <span class="type-signature"></span>removeListenerFromLayer<span class="signature">(layerId, eventType, listener)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="index.js.html">index.js</a></code>,
+                <code><a href="index.js.html#line78">line 78</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Remove a listener from a layer.
+The listener could be a real or a wrapper listener.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>layerId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
 
 
             
@@ -394,7 +1267,53 @@ Each <em>callback</em> is <strong>optional</strong>.</p>
 
             
 
-            <td class="description last"><p>callback method when moving on a feature on the layer</p></td>
+            <td class="description last"><p>the layer id corresponding to the listener.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>eventType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the event type.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>listener</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the listener to remove.</p></td>
         </tr>
 
     

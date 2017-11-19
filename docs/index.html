@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Mapbox GL Mouse over event fix plugin</a></h1>
         
-            <span class="version">v1.0.0</span>
+            <span class="version">v1.1.0</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -34,7 +34,7 @@
         <ul></ul>
     </div>
     
-    <div class="lnb-api hidden"><h3>Modules</h3><ul><li><a href="module-mapboxgl.html">mapboxgl</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl_sub"></div></li><li><a href="module-mapboxgl-Map.html">mapboxgl-Map</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl-Map_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-mapboxgl-Map.html#onClick">onClick</a></li><li><a href="module-mapboxgl-Map.html#onMouseOver">onMouseOver</a></li></ul></div></li></ul></div>
+    <div class="lnb-api hidden"><h3>Modules</h3><ul><li><a href="module-mapboxgl.html">mapboxgl</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl_sub"></div></li><li><a href="module-mapboxgl-Map.html">mapboxgl-Map</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:mapboxgl-Map_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-mapboxgl-Map.html#addListenerForLayer">addListenerForLayer</a></li><li><a href="module-mapboxgl-Map.html#fire">fire</a></li><li><a href="module-mapboxgl-Map.html#getListenersForLayer">getListenersForLayer</a></li><li><a href="module-mapboxgl-Map.html#off">off</a></li><li><a href="module-mapboxgl-Map.html#on">on</a></li><li><a href="module-mapboxgl-Map.html#removeListenerFromLayer">removeListenerFromLayer</a></li></ul></div></li></ul></div>
 </nav>
 <div id="resizer"></div>
 
@@ -61,13 +61,9 @@
 <ul>
 <li>a <code>mouseenter</code> event is generated on a layer <em>X</em> even if layer <em>Y</em> is above layer <em>X</em> on the enter region.</li>
 <li>a <code>mouseleave</code> event is generated on a layer <em>Y</em> if layer <em>Y</em> is above layer <em>X</em> and the mouse is moved when in a region that belongs to both <em>X</em> and <em>Y</em>.</li>
-<li>the bubble effect found commonly in the DOM is not respected (stopPropagation for instance).</li>
+<li>the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles"><em>bubble effect</em></a> found commonly in the DOM is not respected (<a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Examples#Example_5:_Event_Propagation"><code>stopPropagation</code></a> for instance).</li>
 </ul>
-<p>This plugin attempt to correct those misbehaviors by providng the following new method on <code>map</code>:</p>
-<ul>
-<li><code>onMouseOver(layerId, enterCallback, exitCallback, moveOnCallback)</code></li>
-<li><code>onClick(layerId, callback)</code></li>
-</ul>
+<p>This plugin attempt to correct those misbehaviors but does not implement <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation"><code>stopImmediatePropagation</code></a>.</p>
 <p>For more info, see the <a href="https://jrd.github.io/mapbox-gl-mouse-over-event/">documentation API</a></p></article>
     </section>
 
