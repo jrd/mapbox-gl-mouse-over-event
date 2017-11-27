@@ -28,7 +28,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Mapbox GL Mouse over event fix plugin</a></h1>
         
-            <span class="version">v1.1.0</span>
+            <span class="version">v1.1.1</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -185,42 +185,46 @@
         let layerId = layerListener == null ? null : layerIdOrListener;
         let listener = layerListener == null ? layerIdOrListener : layerListener;
         if (isInteractiveEvent(type) &amp;&amp; layerId) {
-            let layer = this.getLayer(layerId);
-            layer.metadata = layer.metadata || {};
             listener.delegates = [];
             if (type === "mouseenter" || type === "mouseover") {
+                let mousein = false;
                 let mousemove = (e) => {
                     const layer = this.getLayer(layerId);
                     const features = layer ? this.queryRenderedFeatures(e.point, { layers: [layerId] }) : [];
                     if (!features.length) {
-                        layer.metadata["mouseenter:mousein"] = false;
-                    } else if (!layer.metadata["mouseenter:mousein"]) {
-                        layer.metadata["mouseenter:mousein"] = true;
+                        mousein = false;
+                    } else if (!mousein) {
+                        mousein = true;
                         listener.call(this, Object.assign({ features, type }, e));
+                        e.originalEvent.cancelMouseMove = true;
+                    } else {
+                        e.originalEvent.stopPropagation();
                     }
                 };
-                mousemove.event = "mousemove";
+                mousemove.event = "special:mousemove";
                 let mouseout = () => {
-                    this.getLayer(layerId).metadata["mouseenter:mousein"] = false;
+                    mousein = false;
                 };
                 mouseout.event = "mouseout";
                 listener.delegates.push(mousemove);
                 listener.delegates.push(mouseout);
             } else if (type === "mouseleave" || type === "mouseout") {
+                let mousein = false;
                 let mousemove = (e) => {
                     const layer = this.getLayer(layerId);
                     const features = layer ? this.queryRenderedFeatures(e.point, { layers: [layerId] }) : [];
                     if (features.length) {
-                        layer.metadata["mouseleave:mousein"] = true;
-                    } else if (layer.metadata["mouseleave:mousein"]) {
-                        layer.metadata["mouseleave:mousein"] = false;
+                        mousein = true;
+                    } else if (mousein) {
+                        mousein = false;
                         listener.call(this, Object.assign({ type }, e));
+                        e.originalEvent.cancelMouseMove = true;
                     }
                 };
-                mousemove.event = "mousemove";
+                mousemove.event = "special:mousemove";
                 let mouseout = (e) => {
-                    if (layer.metadata["mouseleave:mousein"]) {
-                        layer.metadata["mouseleave:mousein"] = false;
+                    if (mousein) {
+                        mousein = false;
                         listener.call(this, Object.assign({ type }, e));
                     }
                 };
@@ -284,8 +288,20 @@
      */
     Map.prototype.fire = function (type, event) {
         if (isInteractiveEvent(type)) {
-            for (let layerEvented of this._getLayersEventedByZIndexFor(type)) {
-                layerEvented.fire(type, event);
+            let types;
+            if (type == "mousemove") {
+                types = ["special:mousemove", type];
+            } else {
+                types = [type];
+            }
+            for (type of types) {
+                if (!event.originalEvent.cancelMouseMove) {
+                    for (let layerEvented of this._getLayersEventedByZIndexFor(type)) {
+                        layerEvented.fire(type, event);
+                    }
+                } else {
+                    delete event.originalEvent.cancelMouseMove;
+                }
             }
             if (event.originalEvent &amp;&amp; event.originalEvent.cancelBubble) {
                 return this;
