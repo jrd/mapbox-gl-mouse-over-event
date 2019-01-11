@@ -28,7 +28,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Mapbox GL Mouse over event fix plugin</a></h1>
         
-            <span class="version">v1.1.1</span>
+            <span class="version">v1.2.0</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -73,6 +73,101 @@
         eventType.startsWith("touch") ||
         ["click", "dblclick", "contextmenu"].includes(eventType)
     );
+
+    ////////////////////////////////////////////////////////////
+    /**
+     * Following code is copied from MapboxGL because it's not publicly availlable in the library.
+     */
+
+    /**
+     * Event class, copied from https://github.com/mapbox/mapbox-gl-js/blob/v0.45.0/src/util/evented.js#L22 because it's extended by MapMouseEvent.
+     * @param {String} type
+     * @param {Object} data
+     */
+    const Event = function Event(type, data) {
+        if (data === undefined) {
+            data = {};
+        }
+        extend(this, data);
+        this.type = type;
+    };
+
+    /**
+     * Code copied from : https://github.com/mapbox/mapbox-gl-js/blob/v0.45.0/src/util/dom.js#L104
+     */
+    const DOM = {};
+    DOM.mousePos = function (el, e) {
+        const rect = el.getBoundingClientRect();
+        e = e.touches ? e.touches[0] : e;
+        return new mapboxgl.Point(
+            e.clientX - rect.left - el.clientLeft,
+            e.clientY - rect.top - el.clientTop
+        );
+    };
+
+    /**
+     * Given a destination object and optionally many source objects,
+     * copy all properties from the source objects into the destination.
+     * The last source object given overrides properties from previous
+     * source objects.
+     *
+     * Code copied from : https://github.com/mapbox/mapbox-gl-js/blob/v0.45.0/src/util/util.js#L152
+     *
+     * @param {Object} dest destination object
+     * @returns {Object} dest
+     * @private
+     */
+    const extend = function (dest) {
+        const sources = [];
+        let len = arguments.length - 1;
+        while (len-- > 0) {
+            sources[len] = arguments[len + 1];
+        }
+        for (let i = 0, list = sources; i &lt; list.length; i += 1) {
+            const src = list[i];
+            for (const k in src) {
+                dest[k] = src[k];
+            }
+        }
+        return dest;
+    };
+
+    /**
+     * `MapMouseEvent` is the event type for mouse-related map events.
+     * https://github.com/mapbox/mapbox-gl-js/blob/v0.45.0/src/ui/events.js#L17
+     * @extends {Object}
+     */
+    const MapMouseEvent = (function (Event) {
+        const MapMouseEvent = function (type, map, originalEvent, data) {
+            if (data === undefined) {
+                data = {};
+            }
+            const point = DOM.mousePos(map.getCanvasContainer(), originalEvent);
+            const lngLat = map.unproject(point);
+            Event.call(this, type, extend({ point: point, lngLat: lngLat, originalEvent: originalEvent }, data));
+            this._defaultPrevented = false;
+            this.target = map;
+        };
+        if (Event) {
+            MapMouseEvent.__proto__ = Event;
+        }
+        MapMouseEvent.prototype = Object.create(Event &amp;&amp; Event.prototype);
+        MapMouseEvent.prototype.constructor = MapMouseEvent;
+        const prototypeAccessors = { defaultPrevented: { configurable: true } };
+        MapMouseEvent.prototype.preventDefault = () => {
+            this._defaultPrevented = true;
+        };
+        /**
+         * `true` if `preventDefault` has been called.
+         * @returns {Boolean}
+         */
+        prototypeAccessors.defaultPrevented.get = function ()          {
+            return this._defaultPrevented;
+        };
+        Object.defineProperties(MapMouseEvent.prototype, prototypeAccessors);
+        return MapMouseEvent;
+    }(Event));
+    ////////////////////////////////////////////////////////////
 
     /**
      * @exports mapboxgl-Map
@@ -141,7 +236,7 @@
     Map.prototype._getLayersEventedByZIndexFor = function (type) {
         let layersEvented = [];
         let layersId = this.style &amp;&amp; this.style._order &amp;&amp; this.style._order.slice().reverse() || [];
-        for (let layerId of layersId) {
+        for (const layerId of layersId) {
             let layerEvented = this._getLayerEventedForLayer(layerId);
             if (layerEvented &amp;&amp; layerEvented.listens(type)) {
                 layersEvented.push(layerEvented);
@@ -182,8 +277,8 @@
      * @returns {Map} this
      */
     Map.prototype.on = function (type, layerIdOrListener = null, layerListener = null) {
-        let layerId = layerListener == null ? null : layerIdOrListener;
-        let listener = layerListener == null ? layerIdOrListener : layerListener;
+        const layerId = layerListener == null ? null : layerIdOrListener;
+        const listener = layerListener == null ? layerIdOrListener : layerListener;
         if (isInteractiveEvent(type) &amp;&amp; layerId) {
             listener.delegates = [];
             if (type === "mouseenter" || type === "mouseover") {
@@ -195,7 +290,7 @@
                         mousein = false;
                     } else if (!mousein) {
                         mousein = true;
-                        listener.call(this, Object.assign({ features, type }, e));
+                        listener.call(this, new MapMouseEvent(type, this, e.originalEvent, { features }));
                         e.originalEvent.cancelMouseMove = true;
                     } else {
                         e.originalEvent.stopPropagation();
@@ -217,7 +312,7 @@
                         mousein = true;
                     } else if (mousein) {
                         mousein = false;
-                        listener.call(this, Object.assign({ type }, e));
+                        listener.call(this, new MapMouseEvent(type, this, e.originalEvent));
                         e.originalEvent.cancelMouseMove = true;
                     }
                 };
@@ -225,7 +320,7 @@
                 let mouseout = (e) => {
                     if (mousein) {
                         mousein = false;
-                        listener.call(this, Object.assign({ type }, e));
+                        listener.call(this, new MapMouseEvent(type, this, e.originalEvent));
                     }
                 };
                 mouseout.event = "mouseout";
@@ -235,7 +330,10 @@
                 let delegate = (e) => {
                     const features = this.getLayer(layerId) ? this.queryRenderedFeatures(e.point, { layers: [layerId] }) : [];
                     if (features.length) {
-                        listener.call(this, Object.assign({ features }, e));
+                        // Here we need to mutate the original event, so that preventDefault works as expected.
+                        e.features = features;
+                        listener.call(this, e);
+                        delete e.features;
                     }
                 };
                 delegate.event = type;
@@ -259,9 +357,9 @@
      * @param   {function}        [layerListener=null]     The listener to remove if not defined in the previous parameter.
      * @returns {Map} this
      */
-    Map.prototype.off = function (type, layerIdOrListener = null, layerListener = null) {
-        let layerId = layerListener == null ? null : layerIdOrListener;
-        let listener = layerListener == null ? layerIdOrListener : layerListener;
+    Map.prototype.off = function (type, layerIdOrListener = null, layerListener = null, ...args) {
+        const layerId = layerListener == null ? null : layerIdOrListener;
+        const listener = layerListener == null ? layerIdOrListener : layerListener;
         if (isInteractiveEvent(type) &amp;&amp; layerId) {
             if (listener.delegates) {
                 for (let delegate of listener.delegates) {
@@ -272,7 +370,7 @@
             }
             return this;
         } else {
-            return originalMapOffFunc.call(this, type, listener);
+            return originalMapOffFunc.call(this, type, listener, args);
         }
     };
 
@@ -280,13 +378,17 @@
      * Fires an event of the specified type.
      *
      * Respect the *bubble effect*.
-     * @param   {string} type  one of the available types.
      * @param   {object} event event data
      * @returns {Map} this
      * @see [`on` method](#on).
      * @see [`Evented` on *mapboxgl*](https://www.mapbox.com/mapbox-gl-js/api/#evented).
      */
-    Map.prototype.fire = function (type, event) {
+    Map.prototype.fire = function (event, ...args) {
+        if (typeof event === "string") {
+            event = new Event(event, arguments[1] || {});
+        }
+        let type = event.type;
+
         if (isInteractiveEvent(type)) {
             let types;
             if (type == "mousemove") {
@@ -297,7 +399,12 @@
             for (type of types) {
                 if (!event.originalEvent.cancelMouseMove) {
                     for (let layerEvented of this._getLayersEventedByZIndexFor(type)) {
-                        layerEvented.fire(type, event);
+                        if (type == "special:mousemove") {
+                            event.type = "special:mousemove";
+                        } else if (type == "mousemove") {
+                            event.type = "mousemove";
+                        }
+                        layerEvented.fire(event);
                     }
                 } else {
                     delete event.originalEvent.cancelMouseMove;
@@ -306,10 +413,10 @@
             if (event.originalEvent &amp;&amp; event.originalEvent.cancelBubble) {
                 return this;
             } else {
-                return originalMapFireFunc.call(this, type, event);
+                return originalMapFireFunc.call(this, event, args);
             }
         } else {
-            return originalMapFireFunc.call(this, type, event);
+            return originalMapFireFunc.call(this, event, args);
         }
     };
 
