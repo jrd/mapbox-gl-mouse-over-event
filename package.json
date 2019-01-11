@@ -1,12 +1,12 @@
 {
     "name": "mapbox-gl-mouse-over-event",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "Mapbox GL Mouse over event fix plugin",
     "main": "index.js",
     "author": "Cyrille Pontvieux",
     "license": "MIT",
     "dependencies": {
-        "mapbox-gl": "^0.41.0"
+        "mapbox-gl": "^0.52.0"
     },
     "devDependencies": {
         "jsdoc": "^3.5.5",
