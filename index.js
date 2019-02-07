@@ -141,8 +141,10 @@
     Map.prototype.addListenerForLayer = function (layerId, eventType, listener) {
         this._layersEvented = this._layersEvented || [];
         let evented = this._layersEvented[layerId] = this._layersEvented[layerId] || new mapboxgl.Evented();
-        let wrappedListener = function (event) {
-            (!event.originalEvent.bubbles || !event.originalEvent.cancelBubble) && listener.call(this, event);
+        let wrappedListener = function (...args) {
+            const ev = args[0] || event;
+            args[0] = ev;
+            (!ev.originalEvent.bubbles || !ev.originalEvent.cancelBubble) && listener.apply(this, args);
         };
         wrappedListener.originalListener = listener;
         evented.on(eventType, wrappedListener);
@@ -226,7 +228,7 @@
      * @param   {function}        [layerListener=null]     The listener if not defined in the previous parameter.
      * @returns {Map} this
      */
-    Map.prototype.on = function (type, layerIdOrListener = null, layerListener = null) {
+    Map.prototype.on = function (type, layerIdOrListener = null, layerListener = null, ...args) {
         const layerId = layerListener == null ? null : layerIdOrListener;
         const listener = layerListener == null ? layerIdOrListener : layerListener;
         if (isInteractiveEvent(type) && layerId) {
@@ -294,7 +296,7 @@
             }
             return this;
         } else {
-            return originalMapOnFunc.call(this, type, listener);
+            return originalMapOnFunc.call(this, type, listener, ...args);
         }
     };
 
@@ -320,7 +322,7 @@
             }
             return this;
         } else {
-            return originalMapOffFunc.call(this, type, listener, args);
+            return originalMapOffFunc.call(this, type, listener, ...args);
         }
     };
 
@@ -338,7 +340,6 @@
             event = new Event(event, arguments[1] || {});
         }
         let type = event.type;
-
         if (isInteractiveEvent(type)) {
             let types;
             if (type == "mousemove") {
@@ -363,10 +364,10 @@
             if (event.originalEvent && event.originalEvent.cancelBubble) {
                 return this;
             } else {
-                return originalMapFireFunc.call(this, event, args);
+                return originalMapFireFunc.call(this, event, ...args);
             }
         } else {
-            return originalMapFireFunc.call(this, event, args);
+            return originalMapFireFunc.call(this, event, ...args);
         }
     };
 
